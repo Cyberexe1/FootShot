@@ -1,0 +1,8 @@
+{
+  "zones": [
+    { "zoneId": "gate-a", "name": "Gate A — North", "capacity": 5000, "occupancy": 0 },
+    { "zoneId": "gate-c", "name": "Gate C — East", "capacity": 4000, "occupancy": 0 },
+    { "zoneId": "concourse-1", "name": "Concourse Level 1", "capacity": 8000, "occupancy": 0 },
+    { "zoneId": "fan-zone", "name": "Fan Zone Plaza", "capacity": 12000, "occupancy": 0 }
+  ]
+}
