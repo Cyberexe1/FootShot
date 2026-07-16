@@ -185,6 +185,55 @@ export interface OpsSummary {
   generatedAt: string;
 }
 
+export type TransportMode = 'metro' | 'shuttle' | 'rideshare' | 'bus';
+
+export interface TransportOption {
+  id: string;
+  mode: TransportMode;
+  name: string;
+  etaMinutes: number;
+  frequency: string;
+  accessible: boolean;
+  note: string;
+}
+
+export type AmenityType = 'water' | 'recycling' | 'compost' | 'ev-charging';
+
+export interface SustainabilityAmenity {
+  id: string;
+  type: AmenityType;
+  name: string;
+  zone: string;
+}
+
+export interface AccessibilityService {
+  id: string;
+  name: string;
+  description: string;
+  zone: string;
+}
+
+export type AssistanceType = 'wheelchair' | 'sensory' | 'medical' | 'guide';
+
+export interface AssistanceRequest {
+  requestId: string;
+  type: AssistanceType;
+  zoneId: string;
+  status: string;
+  etaMinutes: number;
+}
+
+export interface Translation {
+  language: string;
+  text: string;
+}
+
+export interface TranslateResponse {
+  original: string;
+  translations: Translation[];
+  generatedAt: string;
+}
+
 export const api = {
   health: () => getJson<HealthResponse>('/health'),
   chat: sendChat,
@@ -199,4 +248,16 @@ export const api = {
   updateIncident: (id: string, patch: Partial<Pick<Incident, 'status' | 'severity' | 'description'>>) =>
     sendJson<Incident>('PATCH', `/incidents/${id}`, patch),
   opsSummary: () => postJson<OpsSummary>('/ops/summary', {}),
+  // Fan services.
+  transport: () =>
+    getJson<{ options: TransportOption[]; updatedAt: string }>('/transport'),
+  sustainability: () =>
+    getJson<{ amenities: SustainabilityAmenity[] }>('/sustainability/amenities'),
+  accessibilityServices: () =>
+    getJson<{ services: AccessibilityService[] }>('/accessibility/services'),
+  requestAssistance: (type: AssistanceType, zoneId: string, note?: string) =>
+    postJson<AssistanceRequest>('/accessibility/assistance', { type, zoneId, note }),
+  // Staff notifications.
+  translate: (message: string, languages: string[]) =>
+    postJson<TranslateResponse>('/notify/translate', { message, languages }),
 };

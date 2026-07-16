@@ -73,11 +73,11 @@ recommended actions.
 ## Phase 4 — Transport, Accessibility & Sustainability Services
 **Goal:** round out fan-facing operational features.
 
-- [ ] Transport planner (`/api/transport`) with shuttle/metro/rideshare ETAs.
-- [ ] Accessibility services: sensory maps, assistance request flow.
-- [ ] Sustainability locator (recycling, water refill, EV charging).
-- [ ] Multilingual notifications (`/api/notify/translate`).
-- [ ] Tests across new endpoints + components.
+- [x] Transport planner (`/api/transport`) with metro/shuttle/rideshare/bus ETAs.
+- [x] Accessibility services + assistance request flow (PII-redacted notes).
+- [x] Sustainability locator (recycling, water refill, compost, EV charging).
+- [x] Multilingual notifications (`/api/notify/translate`, staff, Nova).
+- [x] Tests across new endpoints + components.
 
 **Exit criteria:** fans can plan transport, request assistance, find sustainable
 amenities; operators broadcast translated announcements.

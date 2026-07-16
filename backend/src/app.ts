@@ -12,6 +12,8 @@ import { wayfindingRouter } from './routes/wayfinding.js';
 import { crowdRouter } from './routes/crowd.js';
 import { incidentsRouter } from './routes/incidents.js';
 import { opsRouter } from './routes/ops.js';
+import { servicesRouter } from './routes/services.js';
+import { notifyRouter } from './routes/notify.js';
 
 /**
  * Builds and wires the Express application. Kept separate from server startup
@@ -53,6 +55,8 @@ export function createApp(): Express {
   app.use('/api', crowdRouter);
   app.use('/api', incidentsRouter);
   app.use('/api', opsRouter);
+  app.use('/api', servicesRouter);
+  app.use('/api', notifyRouter);
 
   // 404 + error handling (must be last).
   app.use(notFoundHandler);

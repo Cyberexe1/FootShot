@@ -4,14 +4,16 @@ import { api } from './lib/api';
 import FanCopilot from './features/copilot/FanCopilot';
 import Wayfinding from './features/wayfinding/Wayfinding';
 import CrowdView from './features/crowd/CrowdView';
+import Services from './features/services/Services';
 import OperatorDashboard from './features/operator/OperatorDashboard';
 
-type Tab = 'copilot' | 'wayfinding' | 'crowd' | 'operator';
+type Tab = 'copilot' | 'wayfinding' | 'crowd' | 'services' | 'operator';
 
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: 'copilot', label: 'Fan Copilot' },
   { id: 'wayfinding', label: 'Wayfinding' },
   { id: 'crowd', label: 'Crowd View' },
+  { id: 'services', label: 'Services' },
   { id: 'operator', label: 'Operator' },
 ];
 
@@ -66,6 +68,7 @@ export default function App() {
         {tab === 'copilot' && <FanCopilot />}
         {tab === 'wayfinding' && <Wayfinding />}
         {tab === 'crowd' && <CrowdView />}
+        {tab === 'services' && <Services />}
         {tab === 'operator' && <OperatorDashboard />}
       </main>
 

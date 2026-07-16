@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, setAuthToken, type Severity } from '../../lib/api';
+import NotifyPanel from './NotifyPanel';
 
 function KpiCards() {
   const crowd = useQuery({
@@ -236,6 +237,7 @@ export default function OperatorDashboard() {
       <KpiCards />
       <AiSummaryPanel />
       <IncidentsPanel />
+      <NotifyPanel />
     </section>
   );
 }

@@ -4,7 +4,7 @@
 > or AI) can resume with full context. Keep entries short and factual.
 
 **Last updated:** 2026-07-16
-**Current phase:** Phase 3 — Operator Dashboard & Decision Support (complete). Next: deploy / Phase 4.
+**Current phase:** Phase 4 — Transport / Accessibility / Sustainability / Notifications (complete). Next: deploy / Phase 5-6.
 **Core stack:** React + Vite + TypeScript · Node.js (Express + TS) · AWS DynamoDB · Amazon Bedrock (Amazon Nova) · App Runner + CloudFront
 
 ---
@@ -30,7 +30,7 @@
 | AI Fan Copilot | ✅ | Phase 1 (Nova + RAG + multilingual) |
 | Wayfinding + Crowd View | ✅ | Phase 2 (pathfinding + heatmap) |
 | Operator Dashboard | ✅ | Phase 3 (auth + incidents + Nova summary) |
-| Transport/Accessibility/Sustainability | ⏳ | Phase 4 |
+| Transport/Accessibility/Sustainability | ✅ | Phase 4 (+ multilingual notify) |
 | Predictive + Analytics | ⏳ | Phase 5 |
 | Hardening & launch | ⏳ | Phase 6 |
 
@@ -80,8 +80,23 @@
   - Tests: auth (401/invalid), incidents CRUD, ops summary (mocked Nova),
     crowd auth. Backend 32 total; frontend OperatorDashboard (7 total). Green.
 
+- **Phase 4** — Fan services + multilingual notifications:
+  - Transport planner (`transport.service.ts`, `GET /api/transport`) with
+    simulated live ETAs, sorted; accessible flags.
+  - Sustainability locator (`sustainability.service.ts`,
+    `GET /api/sustainability/amenities` with `?type=` filter).
+  - Accessibility services + assistance intake (`accessibility.service.ts`):
+    `GET /api/accessibility/services`, `POST /api/accessibility/assistance`
+    (free-text note PII-redacted).
+  - Multilingual notifications (`routes/notify.ts` + `prompts/notify.ts`):
+    `POST /api/notify/translate` (staff) — Nova translates to N languages.
+  - Frontend: fan "Services" tab (transport / accessibility / sustainability);
+    operator "Multilingual Announcement" panel.
+  - Tests: services endpoints (transport/sustainability/accessibility) + notify
+    (auth + translation, mocked Nova). Backend 41 total; frontend 8 total. Green.
+
 ## 4. Currently Working On
-- (idle) — Phase 3 done. Recommended next: deploy to AWS, then Phase 4.
+- (idle) — Phase 4 done. Recommended next: deploy to AWS, then Phase 5/6.
 
 ## 5. Next Up (immediate backlog)
 1. Deploy: push backend image to ECR → App Runner; build frontend → S3 +
