@@ -4,6 +4,22 @@
  */
 const API_BASE = import.meta.env.VITE_API_BASE ?? '/api';
 
+// Bearer token for staff/organizer endpoints (demo auth). Set via setAuthToken.
+let authToken: string | null =
+  typeof localStorage !== 'undefined' ? localStorage.getItem('ff26_token') : null;
+
+export function setAuthToken(token: string | null): void {
+  authToken = token;
+  if (typeof localStorage !== 'undefined') {
+    if (token) localStorage.setItem('ff26_token', token);
+    else localStorage.removeItem('ff26_token');
+  }
+}
+
+function authHeaders(): Record<string, string> {
+  return authToken ? { Authorization: `Bearer ${authToken}` } : {};
+}
+
 export interface HealthResponse {
   status: string;
   service: string;
@@ -28,10 +44,11 @@ export interface ChatResponse {
 
 async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { Accept: 'application/json' },
+    headers: { Accept: 'application/json', ...authHeaders() },
   });
   if (!res.ok) {
-    throw new Error(`Request failed: ${res.status}`);
+    const detail = await res.json().catch(() => null);
+    throw new Error(detail?.error?.message ?? `Request failed: ${res.status}`);
   }
   return (await res.json()) as T;
 }
@@ -55,7 +72,131 @@ async function sendChat(body: ChatRequest): Promise<ChatResponse> {
   return (await res.json()) as ChatResponse;
 }
 
+export type NodeType =
+  | 'gate'
+  | 'concourse'
+  | 'seat'
+  | 'amenity'
+  | 'elevator'
+  | 'stairs'
+  | 'transport';
+
+export interface GraphNode {
+  id: string;
+  name: string;
+  type: NodeType;
+  x: number;
+  y: number;
+}
+
+export interface GraphEdge {
+  from: string;
+  to: string;
+  distance: number;
+  stepFree: boolean;
+}
+
+export interface VenueGraph {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
+export interface RouteStep {
+  id: string;
+  name: string;
+  type: NodeType;
+  x: number;
+  y: number;
+}
+
+export interface Route {
+  from: string;
+  to: string;
+  accessible: boolean;
+  steps: RouteStep[];
+  distanceMeters: number;
+  etaMinutes: number;
+}
+
+export type DensityLevel = 'ok' | 'warn' | 'crit';
+
+export interface ZoneStatus {
+  id: string;
+  name: string;
+  capacity: number;
+  occupancy: number;
+  density: number;
+  level: DensityLevel;
+}
+
+export interface CrowdResponse {
+  zones: ZoneStatus[];
+  updatedAt: string;
+}
+
+async function sendJson<T>(
+  method: 'POST' | 'PATCH',
+  path: string,
+  body: unknown,
+): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...authHeaders(),
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => null);
+    throw new Error(detail?.error?.message ?? `Request failed: ${res.status}`);
+  }
+  return (await res.json()) as T;
+}
+
+function postJson<T>(path: string, body: unknown): Promise<T> {
+  return sendJson<T>('POST', path, body);
+}
+
+export type Severity = 'low' | 'medium' | 'high';
+export type IncidentStatus = 'open' | 'resolved';
+
+export interface Incident {
+  id: string;
+  title: string;
+  description?: string;
+  zoneId?: string;
+  severity: Severity;
+  status: IncidentStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateIncident {
+  title: string;
+  description?: string;
+  zoneId?: string;
+  severity: Severity;
+}
+
+export interface OpsSummary {
+  summary: string;
+  generatedAt: string;
+}
+
 export const api = {
   health: () => getJson<HealthResponse>('/health'),
   chat: sendChat,
+  venueGraph: () => getJson<VenueGraph>('/wayfinding/graph'),
+  route: (from: string, to: string, accessible: boolean) =>
+    postJson<Route>('/wayfinding', { from, to, accessible }),
+  crowdZones: () => getJson<CrowdResponse>('/crowd/zones'),
+  // Staff/organizer (requires auth token).
+  listIncidents: () => getJson<{ incidents: Incident[] }>('/incidents'),
+  createIncident: (input: CreateIncident) =>
+    postJson<Incident>('/incidents', input),
+  updateIncident: (id: string, patch: Partial<Pick<Incident, 'status' | 'severity' | 'description'>>) =>
+    sendJson<Incident>('PATCH', `/incidents/${id}`, patch),
+  opsSummary: () => postJson<OpsSummary>('/ops/summary', {}),
 };

@@ -8,6 +8,10 @@ import { logger } from './utils/logger.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { healthRouter } from './routes/health.js';
 import { chatRouter } from './routes/chat.js';
+import { wayfindingRouter } from './routes/wayfinding.js';
+import { crowdRouter } from './routes/crowd.js';
+import { incidentsRouter } from './routes/incidents.js';
+import { opsRouter } from './routes/ops.js';
 
 /**
  * Builds and wires the Express application. Kept separate from server startup
@@ -45,6 +49,10 @@ export function createApp(): Express {
   // Routes.
   app.use('/api', healthRouter);
   app.use('/api', chatRouter);
+  app.use('/api', wayfindingRouter);
+  app.use('/api', crowdRouter);
+  app.use('/api', incidentsRouter);
+  app.use('/api', opsRouter);
 
   // 404 + error handling (must be last).
   app.use(notFoundHandler);

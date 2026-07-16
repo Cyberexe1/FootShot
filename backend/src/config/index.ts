@@ -11,6 +11,14 @@ const envSchema = z.object({
   // Comma-separated list of allowed CORS origins (e.g. the CloudFront domain).
   CORS_ORIGINS: z.string().default('*'),
   AWS_REGION: z.string().default('us-east-1'),
+  // Staff/organizer auth tokens (demo). In production, swap for Cognito JWT
+  // verification (COGNITO_USER_POOL_ID / COGNITO_CLIENT_ID).
+  STAFF_TOKEN: z.string().default('dev-staff-token'),
+  ORGANIZER_TOKEN: z.string().default('dev-organizer-token'),
+  COGNITO_USER_POOL_ID: z.string().optional(),
+  COGNITO_CLIENT_ID: z.string().optional(),
+  // DynamoDB table for incidents. If unset, an in-memory store is used (demo).
+  INCIDENTS_TABLE: z.string().optional(),
   // Amazon Nova model id used via Bedrock (Converse API).
   BEDROCK_MODEL_ID: z.string().default('amazon.nova-lite-v1:0'),
   BEDROCK_MAX_TOKENS: z.coerce.number().int().positive().default(1024),
@@ -39,6 +47,15 @@ export const config = {
       ? '*'
       : env.CORS_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean),
   awsRegion: env.AWS_REGION,
+  auth: {
+    staffToken: env.STAFF_TOKEN,
+    organizerToken: env.ORGANIZER_TOKEN,
+    cognito:
+      env.COGNITO_USER_POOL_ID && env.COGNITO_CLIENT_ID
+        ? { userPoolId: env.COGNITO_USER_POOL_ID, clientId: env.COGNITO_CLIENT_ID }
+        : null,
+  },
+  incidentsTable: env.INCIDENTS_TABLE ?? null,
   bedrock: {
     modelId: env.BEDROCK_MODEL_ID,
     maxTokens: env.BEDROCK_MAX_TOKENS,
