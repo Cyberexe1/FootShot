@@ -6,8 +6,12 @@ import { authenticate, requireRole } from '../middleware/auth.js';
 export const crowdRouter = Router();
 
 /** GET /api/crowd/zones — current zone densities for the heatmap. */
-crowdRouter.get('/crowd/zones', (_req, res) => {
-  res.status(200).json(getZones());
+crowdRouter.get('/crowd/zones', async (_req, res, next) => {
+  try {
+    res.status(200).json(await getZones());
+  } catch (err) {
+    next(err);
+  }
 });
 
 const ingestSchema = z.object({
@@ -18,10 +22,10 @@ const ingestSchema = z.object({
 /**
  * POST /api/crowd/ingest — update a zone's occupancy. Staff-only.
  */
-crowdRouter.post('/crowd/ingest', authenticate, requireRole('staff'), (req, res, next) => {
+crowdRouter.post('/crowd/ingest', authenticate, requireRole('staff'), async (req, res, next) => {
   try {
     const { zoneId, occupancy } = ingestSchema.parse(req.body);
-    res.status(200).json(ingestOccupancy(zoneId, occupancy));
+    res.status(200).json(await ingestOccupancy(zoneId, occupancy));
   } catch (err) {
     next(err);
   }

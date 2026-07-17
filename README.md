@@ -8,6 +8,17 @@ real-time operational decision support.
 > Planning docs: [`prd.md`](./prd.md) · [`architecture.md`](./architecture.md) ·
 > [`rules.md`](./rules.md) · [`phases.md`](./phases.md) ·
 > [`design.md`](./design.md) · [`memory.md`](./memory.md)
+>
+> Ops docs: [`DEPLOYMENT.md`](./DEPLOYMENT.md) · [`SECURITY.md`](./SECURITY.md) ·
+> [`OBSERVABILITY.md`](./OBSERVABILITY.md) · [`DEMO.md`](./DEMO.md)
+
+## Features
+- **Fan Copilot** — multilingual, RAG-grounded assistant (Amazon Nova)
+- **Wayfinding** — gate-to-seat routing with step-free/accessible option
+- **Crowd View** — live zone density heatmap
+- **Services** — transport ETAs, accessibility services, sustainability locator
+- **Operator** — KPIs, AI decision-support summaries, incidents, congestion
+  forecast, organizer analytics, volunteer AI scripts, multilingual announcements
 
 ## Tech Stack
 - **Frontend:** React + Vite + TypeScript, Tailwind CSS, TanStack Query

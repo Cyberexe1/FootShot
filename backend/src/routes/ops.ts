@@ -15,7 +15,7 @@ opsRouter.use('/ops', authenticate, requireRole('staff', 'organizer'));
  */
 opsRouter.post('/ops/summary', async (_req, res, next) => {
   try {
-    const { zones } = getZones();
+    const { zones } = await getZones();
     const incidents = await incidentsRepo.list();
     const userMessage = buildOpsUserMessage(zones, incidents);
 

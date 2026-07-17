@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../app.js';
+import { bearer } from './helpers.js';
 
 const app = createApp();
+const STAFF = bearer('staff');
 
 describe('crowd endpoints', () => {
   it('returns zone statuses with density and level', async () => {
@@ -17,7 +19,7 @@ describe('crowd endpoints', () => {
   it('ingests an occupancy reading and reflects it (staff auth)', async () => {
     const res = await request(app)
       .post('/api/crowd/ingest')
-      .set('Authorization', 'Bearer dev-staff-token')
+      .set('Authorization', STAFF)
       .send({ zoneId: 'gate-a', occupancy: 4500 });
     expect(res.status).toBe(200);
     expect(res.body.occupancy).toBe(4500);
@@ -34,7 +36,7 @@ describe('crowd endpoints', () => {
   it('rejects an unknown zone', async () => {
     const res = await request(app)
       .post('/api/crowd/ingest')
-      .set('Authorization', 'Bearer dev-staff-token')
+      .set('Authorization', STAFF)
       .send({ zoneId: 'nope', occupancy: 100 });
     expect(res.status).toBe(400);
     expect(res.body.error.code).toBe('UNKNOWN_ZONE');

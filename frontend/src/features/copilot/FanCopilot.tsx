@@ -48,18 +48,21 @@ export default function FanCopilot() {
   return (
     <section
       aria-labelledby="copilot-heading"
-      className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4"
+      className="flex flex-1 flex-col gap-4"
     >
       <div className="flex items-center justify-between gap-4">
-        <h2 id="copilot-heading" className="font-heading text-2xl font-semibold">
+        <p id="copilot-heading" className="sr-only">
           Fan Copilot
-        </h2>
+        </p>
+        <p className="text-content-muted text-sm">
+          Your multilingual guide to the venue.
+        </p>
         <label className="flex items-center gap-2 text-sm">
           <span className="text-content-muted">Language</span>
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="rounded-sm bg-surface-2 px-2 py-1 text-content"
+            className="rounded-md border border-surface-2 bg-surface-2 px-2 py-1.5 text-content focus:border-primary"
             aria-label="Response language"
           >
             {LANGUAGES.map((lang) => (
@@ -71,42 +74,82 @@ export default function FanCopilot() {
         </label>
       </div>
 
-      {/* Conversation transcript. Assistant replies are announced politely. */}
+      {/* Conversation transcript */}
       <div
-        className="flex min-h-[16rem] flex-1 flex-col gap-3 overflow-y-auto rounded-md bg-surface p-4"
+        className="flex min-h-[22rem] flex-1 flex-col gap-4 overflow-y-auto rounded-lg border border-surface-2/60 bg-surface p-4 sm:p-5"
         role="log"
         aria-live="polite"
         aria-label="Conversation"
       >
         {messages.length === 0 && (
-          <p className="text-content-muted text-sm">
-            Ask about navigation, accessibility, transport, or amenities.
-          </p>
+          <div className="m-auto max-w-sm text-center">
+            <div
+              aria-hidden="true"
+              className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-full bg-primary/15 text-2xl"
+            >
+              💬
+            </div>
+            <p className="font-heading text-lg font-semibold">
+              Ask me anything
+            </p>
+            <p className="text-content-muted mt-1 text-sm">
+              Navigation, accessibility, transport, or amenities — in your language.
+            </p>
+          </div>
         )}
 
-        {messages.map((m, i) => (
-          <div
-            key={i}
-            className={
-              m.role === 'user'
-                ? 'self-end rounded-md bg-primary px-3 py-2 text-sm text-white'
-                : 'self-start rounded-md bg-surface-2 px-3 py-2 text-sm'
-            }
-          >
-            <span className="sr-only">
-              {m.role === 'user' ? 'You said: ' : 'Assistant replied: '}
-            </span>
-            {m.content}
-            {m.sources && m.sources.length > 0 && (
-              <p className="text-content-muted mt-2 text-xs">
-                Sources: {m.sources.map((s) => s.title).join(', ')}
-              </p>
-            )}
-          </div>
-        ))}
+        {messages.map((m, i) => {
+          const isUser = m.role === 'user';
+          return (
+            <div
+              key={i}
+              className={'flex items-start gap-3 ' + (isUser ? 'flex-row-reverse' : '')}
+            >
+              <span
+                aria-hidden="true"
+                className={
+                  'grid h-8 w-8 shrink-0 place-items-center rounded-full text-sm ' +
+                  (isUser ? 'bg-surface-2' : 'bg-primary text-white')
+                }
+              >
+                {isUser ? '🙂' : 'F'}
+              </span>
+              <div
+                className={
+                  'max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ' +
+                  (isUser
+                    ? 'rounded-tr-sm bg-primary text-white'
+                    : 'rounded-tl-sm bg-surface-2 text-content')
+                }
+              >
+                <span className="sr-only">
+                  {isUser ? 'You said: ' : 'Assistant replied: '}
+                </span>
+                <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
+                {m.sources && m.sources.length > 0 && (
+                  <p className="text-content-muted mt-2 border-t border-white/10 pt-2 text-xs">
+                    Sources: {m.sources.map((s) => s.title).join(', ')}
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
 
         {chat.isPending && (
-          <p className="text-content-muted self-start text-sm">Thinking…</p>
+          <div className="flex items-center gap-3">
+            <span
+              aria-hidden="true"
+              className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary text-sm text-white"
+            >
+              F
+            </span>
+            <div className="flex gap-1 rounded-2xl rounded-tl-sm bg-surface-2 px-4 py-3">
+              <span className="h-2 w-2 animate-bounce rounded-full bg-content-muted [animation-delay:-0.2s]" />
+              <span className="h-2 w-2 animate-bounce rounded-full bg-content-muted [animation-delay:-0.1s]" />
+              <span className="h-2 w-2 animate-bounce rounded-full bg-content-muted" />
+            </div>
+          </div>
         )}
         {chat.isError && (
           <p className="text-status-crit self-start text-sm" role="alert">
@@ -123,7 +166,7 @@ export default function FanCopilot() {
               <button
                 type="button"
                 onClick={() => submit(s)}
-                className="rounded-full border border-surface-2 px-3 py-1 text-xs text-content-muted hover:border-primary hover:text-content"
+                className="rounded-full border border-surface-2 px-3 py-1.5 text-xs text-content-muted transition-colors hover:border-primary hover:text-content"
               >
                 {s}
               </button>
@@ -137,7 +180,7 @@ export default function FanCopilot() {
           e.preventDefault();
           submit(input);
         }}
-        className="flex gap-2"
+        className="flex gap-2 rounded-lg border border-surface-2/60 bg-surface p-2"
       >
         <label htmlFor="copilot-input" className="sr-only">
           Ask the Fan Copilot a question
@@ -149,12 +192,12 @@ export default function FanCopilot() {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your question…"
           autoComplete="off"
-          className="flex-1 rounded-md bg-surface-2 px-3 py-2 text-content placeholder:text-content-muted"
+          className="flex-1 rounded-md bg-transparent px-3 py-2 text-content placeholder:text-content-muted focus:outline-none"
         />
         <button
           type="submit"
           disabled={chat.isPending || !input.trim()}
-          className="rounded-md bg-primary px-4 py-2 font-medium text-white hover:bg-primary-hover disabled:opacity-50"
+          className="rounded-md bg-primary px-5 py-2 font-medium text-white transition-colors hover:bg-primary-hover disabled:opacity-50"
         >
           Send
         </button>

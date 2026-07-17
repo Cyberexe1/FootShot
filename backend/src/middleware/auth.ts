@@ -1,4 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { config } from '../config/index.js';
 import { AppError } from '../utils/errors.js';
 
@@ -6,6 +7,7 @@ export type Role = 'staff' | 'organizer';
 
 export interface AuthUser {
   role: Role;
+  username?: string;
 }
 
 declare global {
@@ -18,21 +20,22 @@ declare global {
 }
 
 /**
- * Resolves a bearer token to an authenticated user.
- *
- * Demo mode: static staff/organizer tokens from config. This is the tested
- * mechanism. In production this is where Cognito JWT verification plugs in
- * (config.auth.cognito) — verify the token and map Cognito groups to a role.
+ * Verifies a signed JWT (issued by POST /api/auth/login after a bcrypt password
+ * check) and resolves it to an authenticated user.
  */
 function verifyToken(token: string): AuthUser | null {
-  if (config.auth.cognito) {
-    // Production path: verify the Cognito JWT and derive the role from groups.
-    // Intentionally not enabled in the demo build; see architecture.md.
+  try {
+    const payload = jwt.verify(token, config.auth.jwtSecret) as {
+      role?: string;
+      sub?: string;
+    };
+    if (payload.role === 'staff' || payload.role === 'organizer') {
+      return { role: payload.role, username: payload.sub };
+    }
+    return null;
+  } catch {
     return null;
   }
-  if (token === config.auth.staffToken) return { role: 'staff' };
-  if (token === config.auth.organizerToken) return { role: 'organizer' };
-  return null;
 }
 
 /** Requires a valid bearer token; attaches req.user. */

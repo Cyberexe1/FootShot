@@ -1,27 +1,44 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import App from '../App';
+import { AuthProvider } from '../lib/auth';
 
 // Avoid real network calls in the component test.
 vi.mock('../lib/api', () => ({
   api: { health: vi.fn().mockResolvedValue({ status: 'ok', service: 'test', timestamp: '' }) },
+  setAuthToken: vi.fn(),
+  setUnauthorizedHandler: vi.fn(),
 }));
 
-function renderWithClient() {
+function renderApp() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   return render(
     <QueryClientProvider client={client}>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </QueryClientProvider>,
   );
 }
 
 describe('App', () => {
-  it('renders the FanFlow 26 heading', () => {
-    renderWithClient();
+  beforeEach(() => sessionStorage.clear());
+
+  it('shows the landing page first', () => {
+    renderApp();
+    expect(screen.getByRole('button', { name: /launch app/i })).toBeInTheDocument();
     expect(
-      screen.getByRole('heading', { name: /FanFlow/i }),
+      screen.getByRole('heading', { name: /smart stadiums/i }),
     ).toBeInTheDocument();
+  });
+
+  it('enters the console from the landing CTA', async () => {
+    const user = userEvent.setup();
+    renderApp();
+    await user.click(screen.getAllByRole('button', { name: /enter the console/i })[0]);
+    expect(screen.getByRole('navigation', { name: /primary/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /fan copilot/i })).toBeInTheDocument();
   });
 });

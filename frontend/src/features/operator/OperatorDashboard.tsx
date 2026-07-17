@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { api, setAuthToken, type Severity } from '../../lib/api';
+import { api, type Severity } from '../../lib/api';
+import { useAuth } from '../../lib/auth';
 import NotifyPanel from './NotifyPanel';
+import ForecastPanel from './ForecastPanel';
+import AnalyticsPanel from './AnalyticsPanel';
+import VolunteerScript from './VolunteerScript';
 
 function KpiCards() {
   const crowd = useQuery({
@@ -173,45 +177,33 @@ function IncidentsPanel() {
   );
 }
 
-export default function OperatorDashboard() {
-  const [token, setToken] = useState('');
-  const [authed, setAuthed] = useState(
-    typeof localStorage !== 'undefined' && !!localStorage.getItem('ff26_token'),
-  );
+export default function OperatorDashboard({
+  onRequireLogin,
+}: {
+  onRequireLogin: () => void;
+}) {
+  const { user, logout } = useAuth();
 
-  if (!authed) {
+  if (!user) {
     return (
-      <section aria-labelledby="operator-heading" className="flex flex-col gap-4">
+      <section
+        aria-labelledby="operator-heading"
+        className="mx-auto flex max-w-sm flex-col items-center gap-4 rounded-md bg-surface p-8 text-center"
+      >
         <h2 id="operator-heading" className="font-heading text-2xl font-semibold">
-          Operator Sign-in
+          Operator access
         </h2>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setAuthToken(token.trim());
-            setAuthed(true);
-          }}
-          className="flex flex-col gap-3 rounded-md bg-surface p-4"
+        <p className="text-content-muted text-sm">
+          Sign in or create an account to view live crowd intelligence, manage
+          incidents, and use AI decision support.
+        </p>
+        <button
+          type="button"
+          onClick={onRequireLogin}
+          className="rounded-md bg-primary px-5 py-2.5 font-medium text-white hover:bg-primary-hover"
         >
-          <label htmlFor="op-token" className="text-content-muted text-sm">
-            Staff access token
-          </label>
-          <input
-            id="op-token"
-            type="password"
-            value={token}
-            onChange={(e) => setToken(e.target.value)}
-            placeholder="Enter staff token"
-            className="rounded-sm bg-surface-2 px-3 py-2"
-          />
-          <button
-            type="submit"
-            disabled={!token.trim()}
-            className="self-start rounded-md bg-primary px-4 py-2 font-medium text-white hover:bg-primary-hover disabled:opacity-50"
-          >
-            Sign in
-          </button>
-        </form>
+          Log in / Sign up
+        </button>
       </section>
     );
   }
@@ -224,19 +216,18 @@ export default function OperatorDashboard() {
         </h2>
         <button
           type="button"
-          onClick={() => {
-            setAuthToken(null);
-            setAuthed(false);
-            setToken('');
-          }}
+          onClick={logout}
           className="text-content-muted text-xs hover:text-content"
         >
           Sign out
         </button>
       </div>
       <KpiCards />
+      <AnalyticsPanel />
+      <ForecastPanel />
       <AiSummaryPanel />
       <IncidentsPanel />
+      <VolunteerScript />
       <NotifyPanel />
     </section>
   );

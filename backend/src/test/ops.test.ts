@@ -10,9 +10,10 @@ vi.mock('../services/bedrock.service.js', () => ({
 
 import { createApp } from '../app.js';
 import { generateAnswer } from '../services/bedrock.service.js';
+import { bearer } from './helpers.js';
 
 const app = createApp();
-const STAFF = 'Bearer dev-staff-token';
+const STAFF = bearer('staff');
 
 describe('POST /api/ops/summary', () => {
   beforeEach(() => vi.clearAllMocks());

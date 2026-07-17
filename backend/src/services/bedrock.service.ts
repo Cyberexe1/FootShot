@@ -32,6 +32,8 @@ export async function generateAnswer(
   turns: ChatTurn[],
 ): Promise<string> {
   const start = Date.now();
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), config.bedrock.timeoutMs);
   try {
     const command = new ConverseCommand({
       modelId: config.bedrock.modelId,
@@ -43,7 +45,7 @@ export async function generateAnswer(
       },
     });
 
-    const response = await client.send(command);
+    const response = await client.send(command, { abortSignal: abort.signal });
     const text =
       response.output?.message?.content?.map((c) => c.text ?? '').join('') ?? '';
 
@@ -60,6 +62,8 @@ export async function generateAnswer(
     if (err instanceof AppError) throw err;
     logger.error({ err }, 'Bedrock converse failed');
     throw new AppError(502, 'MODEL_ERROR', 'The assistant is unavailable right now.');
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -68,6 +72,8 @@ export async function* streamAnswer(
   systemPrompt: string,
   turns: ChatTurn[],
 ): AsyncGenerator<string> {
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), config.bedrock.timeoutMs);
   try {
     const command = new ConverseStreamCommand({
       modelId: config.bedrock.modelId,
@@ -79,7 +85,7 @@ export async function* streamAnswer(
       },
     });
 
-    const response = await client.send(command);
+    const response = await client.send(command, { abortSignal: abort.signal });
     if (!response.stream) return;
 
     for await (const event of response.stream) {
@@ -89,5 +95,7 @@ export async function* streamAnswer(
   } catch (err) {
     logger.error({ err }, 'Bedrock stream failed');
     throw new AppError(502, 'MODEL_ERROR', 'The assistant is unavailable right now.');
+  } finally {
+    clearTimeout(timer);
   }
 }

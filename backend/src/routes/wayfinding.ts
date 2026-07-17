@@ -12,6 +12,8 @@ const routeSchema = z.object({
 
 /** GET /api/wayfinding/graph — venue nodes/edges for rendering the base map. */
 wayfindingRouter.get('/wayfinding/graph', (_req, res) => {
+  // Static per venue — safe to cache at the CDN and in the browser.
+  res.set('Cache-Control', 'public, max-age=3600');
   res.status(200).json(getGraph());
 });
 

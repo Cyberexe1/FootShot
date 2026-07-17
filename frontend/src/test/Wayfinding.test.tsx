@@ -49,7 +49,7 @@ describe('Wayfinding', () => {
     );
     await user.click(screen.getByRole('button', { name: /get directions/i }));
 
-    await waitFor(() => expect(screen.getByText(/about 3 min/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/3 min walk/i)).toBeInTheDocument());
     expect(screen.getByRole('list')).toHaveTextContent('Section 115');
   });
 });

@@ -20,6 +20,22 @@ function authHeaders(): Record<string, string> {
   return authToken ? { Authorization: `Bearer ${authToken}` } : {};
 }
 
+// Invoked when a request is rejected with 401 (expired/invalid token) so the
+// app can clear session state and prompt re-authentication.
+let onUnauthorized: (() => void) | null = null;
+export function setUnauthorizedHandler(handler: (() => void) | null): void {
+  onUnauthorized = handler;
+}
+
+function handleUnauthorized(status: number): void {
+  // Only react to 401 when we actually had a token (i.e. a session expired),
+  // not for anonymous calls to protected routes.
+  if (status === 401 && authToken) {
+    setAuthToken(null);
+    onUnauthorized?.();
+  }
+}
+
 export interface HealthResponse {
   status: string;
   service: string;
@@ -47,6 +63,7 @@ async function getJson<T>(path: string): Promise<T> {
     headers: { Accept: 'application/json', ...authHeaders() },
   });
   if (!res.ok) {
+    handleUnauthorized(res.status);
     const detail = await res.json().catch(() => null);
     throw new Error(detail?.error?.message ?? `Request failed: ${res.status}`);
   }
@@ -149,6 +166,7 @@ async function sendJson<T>(
     body: JSON.stringify(body),
   });
   if (!res.ok) {
+    handleUnauthorized(res.status);
     const detail = await res.json().catch(() => null);
     throw new Error(detail?.error?.message ?? `Request failed: ${res.status}`);
   }
@@ -234,8 +252,64 @@ export interface TranslateResponse {
   generatedAt: string;
 }
 
+export interface HorizonPoint {
+  minutes: number;
+  density: number;
+  level: DensityLevel;
+}
+
+export interface ZoneForecast {
+  zoneId: string;
+  name: string;
+  currentDensity: number;
+  horizon: HorizonPoint[];
+  risk: DensityLevel;
+}
+
+export interface CongestionForecast {
+  forecasts: ZoneForecast[];
+  generatedAt: string;
+}
+
+export type Severity2 = 'low' | 'medium' | 'high';
+
+export interface AnalyticsOverview {
+  crowd: {
+    totalCapacity: number;
+    totalOccupancy: number;
+    avgDensity: number;
+    zonesAtCapacity: number;
+  };
+  incidents: {
+    open: number;
+    resolved: number;
+    bySeverity: Record<Severity2, number>;
+  };
+  sustainability: {
+    amenitiesByType: Record<AmenityType, number>;
+    wasteDivertedPercent: number;
+  };
+  transport: { optionCount: number; accessibleCount: number };
+  generatedAt: string;
+}
+
+export interface VolunteerScript {
+  script: string;
+  sources: ChatSource[];
+}
+
+export interface LoginResponse {
+  token: string;
+  role: 'staff' | 'organizer';
+  username: string;
+}
+
 export const api = {
   health: () => getJson<HealthResponse>('/health'),
+  login: (username: string, password: string) =>
+    postJson<LoginResponse>('/auth/login', { username, password }),
+  signup: (username: string, password: string) =>
+    postJson<LoginResponse>('/auth/signup', { username, password }),
   chat: sendChat,
   venueGraph: () => getJson<VenueGraph>('/wayfinding/graph'),
   route: (from: string, to: string, accessible: boolean) =>
@@ -260,4 +334,9 @@ export const api = {
   // Staff notifications.
   translate: (message: string, languages: string[]) =>
     postJson<TranslateResponse>('/notify/translate', { message, languages }),
+  // Phase 5: predictive + analytics + volunteer.
+  congestion: () => getJson<CongestionForecast>('/predict/congestion'),
+  analytics: () => getJson<AnalyticsOverview>('/analytics/overview'),
+  volunteerScript: (question: string, language: string) =>
+    postJson<VolunteerScript>('/volunteer/script', { question, language }),
 };

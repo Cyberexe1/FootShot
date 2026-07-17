@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../app.js';
+import { bearer } from './helpers.js';
 
 const app = createApp();
-const STAFF = 'Bearer dev-staff-token';
+const STAFF = bearer('staff');
 
 describe('incidents endpoints', () => {
   it('rejects unauthenticated access', async () => {

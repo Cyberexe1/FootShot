@@ -1,28 +1,35 @@
-# Dependencies
-node_modules/
+# =========================================================================
+# Allowlist: only the application code is pushed to GitHub.
+# Everything at the repo root is ignored by default, then the app folders
+# (frontend + backend) and a couple of essentials are re-included.
+# Excluded on purpose: infra/, loadtest/, planning & ops docs (*.md),
+# deploy scripts and token files.
+# =========================================================================
+/*
 
-# Build output
+!/frontend/
+!/backend/
+!/README.md
+!/.gitignore
+
+# ------------------------------------------------------------------------
+# Within the tracked folders, never commit these.
+# ------------------------------------------------------------------------
+node_modules/
 dist/
 build/
 coverage/
-
-# Env & secrets
-.env
-.env.*
-!.env.example
 
 # Logs
 *.log
 npm-debug.log*
 
+# Env & secrets (keep the examples)
+.env
+.env.*
+!.env.example
+
 # Editor / OS
 .DS_Store
 .idea/
-.vscode/*
-!.vscode/extensions.json
-
-# CDK / Terraform
-cdk.out/
-.terraform/
-*.tfstate
-*.tfstate.*
+.vscode/

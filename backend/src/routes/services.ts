@@ -23,6 +23,7 @@ servicesRouter.get('/sustainability/amenities', (req, res, next) => {
     const type = req.query.type
       ? z.enum(amenityTypes).parse(req.query.type)
       : undefined;
+    res.set('Cache-Control', 'public, max-age=600');
     res.status(200).json(getAmenities(type as AmenityType | undefined));
   } catch (err) {
     next(err);
@@ -31,6 +32,7 @@ servicesRouter.get('/sustainability/amenities', (req, res, next) => {
 
 /* ---- Accessibility ------------------------------------------------------ */
 servicesRouter.get('/accessibility/services', (_req, res) => {
+  res.set('Cache-Control', 'public, max-age=600');
   res.status(200).json(getServices());
 });
 
