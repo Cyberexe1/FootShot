@@ -7,15 +7,17 @@ export default defineConfig({
       reporter: ['text-summary', 'text'],
       // Enforced quality gate (set below current levels to allow small dips).
       thresholds: {
-        lines: 60,
-        statements: 60,
-        functions: 55,
-        branches: 50,
+        lines: 90,
+        statements: 90,
+        functions: 90,
+        branches: 80,
       },
-      // Exclude non-unit-testable bootstrap/config from the denominator.
+      // Exclude non-unit-testable bootstrap/config/logging from the denominator.
       exclude: [
         'dist/**',
         'src/index.ts',
+        'src/config/**',
+        'src/utils/logger.ts',
         '**/*.test.ts',
         '**/test/**',
         'vitest.config.ts',

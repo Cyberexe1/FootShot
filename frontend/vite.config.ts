@@ -25,10 +25,10 @@ export default defineConfig({
       reporter: ['text-summary', 'text'],
       // Enforced quality gate (set below current levels to allow small dips).
       thresholds: {
-        lines: 60,
-        statements: 60,
-        functions: 45,
-        branches: 55,
+        lines: 70,
+        statements: 70,
+        functions: 55,
+        branches: 65,
       },
       exclude: [
         '**/main.tsx',

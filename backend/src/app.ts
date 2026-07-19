@@ -27,8 +27,16 @@ import { volunteerRouter } from './routes/volunteer.js';
 export function createApp(): Express {
   const app = express();
 
-  // Security headers.
+  // Security headers (helmet covers CSP, HSTS, X-Content-Type-Options, etc.).
   app.use(helmet());
+  // helmet does not set Permissions-Policy — lock down powerful features.
+  app.use((_req, res, next) => {
+    res.setHeader(
+      'Permissions-Policy',
+      'geolocation=(), microphone=(), camera=(), payment=(), usb=()',
+    );
+    next();
+  });
 
   // CORS restricted to configured origins (CloudFront domain in production).
   app.use(
