@@ -3,7 +3,10 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm ci
+# Use npm install (not ci) so platform-specific optional binaries (esbuild, etc.)
+# resolve correctly for the linux/amd64 build regardless of the host that
+# generated the lockfile.
+RUN npm install --no-audit --no-fund
 
 COPY tsconfig.json ./
 COPY src ./src
@@ -15,7 +18,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 
 COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev --no-audit --no-fund && npm cache clean --force
 
 COPY --from=build /app/dist ./dist
 
