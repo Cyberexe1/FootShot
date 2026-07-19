@@ -52,11 +52,29 @@ chatRouter.post('/chat', async (req, res, next) => {
       res.setHeader('Connection', 'keep-alive');
       res.flushHeaders?.();
 
-      for await (const chunk of streamAnswer(systemPrompt, turns)) {
-        res.write(`data: ${JSON.stringify({ delta: chunk })}\n\n`);
+      // Stop generating if the client disconnects.
+      let aborted = false;
+      req.on('close', () => {
+        aborted = true;
+      });
+
+      try {
+        for await (const chunk of streamAnswer(systemPrompt, turns)) {
+          if (aborted) break;
+          res.write(`data: ${JSON.stringify({ delta: chunk })}\n\n`);
+        }
+        res.write(`event: done\ndata: ${JSON.stringify({ sources })}\n\n`);
+      } catch {
+        // Headers are already sent, so surface the error as an SSE event rather
+        // than delegating to the JSON error handler (which would throw).
+        res.write(
+          `event: error\ndata: ${JSON.stringify({
+            error: 'The assistant is unavailable right now.',
+          })}\n\n`,
+        );
+      } finally {
+        res.end();
       }
-      res.write(`event: done\ndata: ${JSON.stringify({ sources })}\n\n`);
-      res.end();
       return;
     }
 
