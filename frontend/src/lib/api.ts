@@ -4,36 +4,19 @@
  */
 const API_BASE = import.meta.env.VITE_API_BASE ?? '/api';
 
-// Bearer token for staff/organizer endpoints (demo auth). Set via setAuthToken.
-let authToken: string | null =
-  typeof localStorage !== 'undefined' ? localStorage.getItem('ff26_token') : null;
+// Auth uses an httpOnly session cookie set by the backend on login/signup, so
+// the JWT never touches JavaScript (XSS-resistant). Requests send the cookie
+// via credentials: 'include'.
 
-export function setAuthToken(token: string | null): void {
-  authToken = token;
-  if (typeof localStorage !== 'undefined') {
-    if (token) localStorage.setItem('ff26_token', token);
-    else localStorage.removeItem('ff26_token');
-  }
-}
-
-function authHeaders(): Record<string, string> {
-  return authToken ? { Authorization: `Bearer ${authToken}` } : {};
-}
-
-// Invoked when a request is rejected with 401 (expired/invalid token) so the
-// app can clear session state and prompt re-authentication.
+// Invoked when a request is rejected with 401 (expired/invalid session) so the
+// app can clear UI state and prompt re-authentication.
 let onUnauthorized: (() => void) | null = null;
 export function setUnauthorizedHandler(handler: (() => void) | null): void {
   onUnauthorized = handler;
 }
 
 function handleUnauthorized(status: number): void {
-  // Only react to 401 when we actually had a token (i.e. a session expired),
-  // not for anonymous calls to protected routes.
-  if (status === 401 && authToken) {
-    setAuthToken(null);
-    onUnauthorized?.();
-  }
+  if (status === 401) onUnauthorized?.();
 }
 
 export interface HealthResponse {
@@ -60,7 +43,8 @@ export interface ChatResponse {
 
 async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
-    headers: { Accept: 'application/json', ...authHeaders() },
+    credentials: 'include',
+    headers: { Accept: 'application/json' },
   });
   if (!res.ok) {
     handleUnauthorized(res.status);
@@ -79,6 +63,7 @@ export interface ChatRequest {
 async function sendChat(body: ChatRequest): Promise<ChatResponse> {
   const res = await fetch(`${API_BASE}/chat`, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
     body: JSON.stringify(body),
   });
@@ -158,10 +143,10 @@ async function sendJson<T>(
 ): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method,
+    credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
-      ...authHeaders(),
     },
     body: JSON.stringify(body),
   });
@@ -310,6 +295,7 @@ export const api = {
     postJson<LoginResponse>('/auth/login', { username, password }),
   signup: (username: string, password: string) =>
     postJson<LoginResponse>('/auth/signup', { username, password }),
+  logout: () => postJson<{ ok: boolean }>('/auth/logout', {}),
   chat: sendChat,
   venueGraph: () => getJson<VenueGraph>('/wayfinding/graph'),
   route: (from: string, to: string, accessible: boolean) =>

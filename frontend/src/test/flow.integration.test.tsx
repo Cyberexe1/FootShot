@@ -7,11 +7,11 @@ import { AuthProvider } from '../lib/auth';
 import { api } from '../lib/api';
 
 vi.mock('../lib/api', () => ({
-  setAuthToken: vi.fn(),
   setUnauthorizedHandler: vi.fn(),
   api: {
     health: vi.fn().mockResolvedValue({ status: 'ok', service: 'test', timestamp: '' }),
     login: vi.fn().mockResolvedValue({ token: 't', role: 'staff', username: 'operator' }),
+    logout: vi.fn().mockResolvedValue({ ok: true }),
     signup: vi.fn(),
     crowdZones: vi.fn().mockResolvedValue({ updatedAt: '', zones: [] }),
     listIncidents: vi.fn().mockResolvedValue({ incidents: [] }),

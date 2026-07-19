@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { redactPii } from '../utils/pii.js';
-import { buildContext, retrieve } from '../services/rag.service.js';
+import { buildContext, retrieveSmart } from '../services/rag.service.js';
 import { buildSystemPrompt } from '../prompts/copilot.js';
 import {
   generateAnswer,
@@ -39,7 +39,7 @@ chatRouter.post('/chat', async (req, res, next) => {
     }));
 
     // Ground the answer in venue knowledge.
-    const docs = retrieve(safeMessage);
+    const docs = await retrieveSmart(safeMessage);
     const context = buildContext(docs);
     const systemPrompt = buildSystemPrompt(language, context);
 

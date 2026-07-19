@@ -6,9 +6,9 @@ import OperatorDashboard from '../features/operator/OperatorDashboard';
 import { AuthProvider } from '../lib/auth';
 
 vi.mock('../lib/api', () => ({
-  setAuthToken: vi.fn(),
   setUnauthorizedHandler: vi.fn(),
   api: {
+    logout: vi.fn().mockResolvedValue({ ok: true }),
     crowdZones: vi.fn().mockResolvedValue({ updatedAt: '', zones: [] }),
     listIncidents: vi.fn().mockResolvedValue({ incidents: [] }),
     opsSummary: vi.fn(),

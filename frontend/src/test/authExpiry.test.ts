@@ -1,19 +1,16 @@
 import { describe, expect, it, beforeEach, vi, afterEach } from 'vitest';
-import { api, setAuthToken, setUnauthorizedHandler } from '../lib/api';
+import { api, setUnauthorizedHandler } from '../lib/api';
 
 /**
- * Verifies the session-expiry behaviour: a 401 on a protected call while a token
- * is set clears the token and invokes the unauthorized handler (auto-logout).
+ * Verifies session-expiry handling: a 401 on any protected call invokes the
+ * registered unauthorized handler so the app can clear UI state (auto-logout).
+ * Auth itself is cookie-based (httpOnly), so there is no token in JS to check.
  */
 describe('401 auto-logout handling', () => {
-  beforeEach(() => {
-    localStorage.clear();
-    vi.restoreAllMocks();
-  });
+  beforeEach(() => vi.restoreAllMocks());
   afterEach(() => setUnauthorizedHandler(null));
 
-  it('clears the token and calls the handler on a 401 with an active session', async () => {
-    setAuthToken('expired-jwt');
+  it('calls the unauthorized handler on a 401 response', async () => {
     const onUnauthorized = vi.fn();
     setUnauthorizedHandler(onUnauthorized);
 
@@ -26,22 +23,20 @@ describe('401 auto-logout handling', () => {
 
     await expect(api.listIncidents()).rejects.toThrow();
     expect(onUnauthorized).toHaveBeenCalledTimes(1);
-    expect(localStorage.getItem('ff26_token')).toBeNull();
   });
 
-  it('does not trigger logout for anonymous 401s (no token set)', async () => {
-    setAuthToken(null);
-    const onUnauthorized = vi.fn();
-    setUnauthorizedHandler(onUnauthorized);
-
-    vi.spyOn(globalThis, 'fetch').mockResolvedValue(
-      new Response(JSON.stringify({ error: { code: 'UNAUTHORIZED', message: 'nope' } }), {
-        status: 401,
+  it('sends credentials (cookie) with requests', async () => {
+    const spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(
+      new Response(JSON.stringify({ incidents: [] }), {
+        status: 200,
         headers: { 'Content-Type': 'application/json' },
       }),
     );
 
-    await expect(api.listIncidents()).rejects.toThrow();
-    expect(onUnauthorized).not.toHaveBeenCalled();
+    await api.listIncidents();
+    expect(spy).toHaveBeenCalledWith(
+      expect.stringContaining('/incidents'),
+      expect.objectContaining({ credentials: 'include' }),
+    );
   });
 });

@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components -- context module exports both a provider and its hook by design */
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { api, setAuthToken, setUnauthorizedHandler } from './api';
+import { api, setUnauthorizedHandler } from './api';
 
 export interface AuthUser {
   username: string;
@@ -35,13 +35,19 @@ function loadUser(): AuthUser | null {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(loadUser);
 
-  const persist = (res: { token: string; username: string; role: AuthUser['role'] }) => {
-    setAuthToken(res.token);
+  // Only the display profile (username/role) is kept in JS/localStorage; the
+  // JWT lives in an httpOnly cookie the browser sends automatically.
+  const persist = (res: { username: string; role: AuthUser['role'] }) => {
     const profile: AuthUser = { username: res.username, role: res.role };
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('ff26_user', JSON.stringify(profile));
     }
     setUser(profile);
+  };
+
+  const clearProfile = () => {
+    if (typeof localStorage !== 'undefined') localStorage.removeItem('ff26_user');
+    setUser(null);
   };
 
   const login = async (username: string, password: string) => {
@@ -53,17 +59,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    setAuthToken(null);
-    if (typeof localStorage !== 'undefined') localStorage.removeItem('ff26_user');
-    setUser(null);
+    void api.logout().catch(() => undefined); // clear the cookie server-side
+    clearProfile();
   };
 
   // Auto-logout when the API reports the session is no longer valid (401).
   useEffect(() => {
-    setUnauthorizedHandler(() => {
-      if (typeof localStorage !== 'undefined') localStorage.removeItem('ff26_user');
-      setUser(null);
-    });
+    setUnauthorizedHandler(clearProfile);
     return () => setUnauthorizedHandler(null);
   }, []);
 

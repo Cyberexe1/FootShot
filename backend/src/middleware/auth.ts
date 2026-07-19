@@ -38,12 +38,17 @@ function verifyToken(token: string): AuthUser | null {
   }
 }
 
-/** Requires a valid bearer token; attaches req.user. */
+export const SESSION_COOKIE = 'ff26_session';
+
+/** Requires a valid session; reads the JWT from the httpOnly cookie or, as a
+ * fallback (API clients/tests), the Authorization bearer header. */
 export function authenticate(req: Request, _res: Response, next: NextFunction): void {
   const header = req.headers.authorization;
-  const token = header?.startsWith('Bearer ') ? header.slice(7).trim() : null;
+  const bearer = header?.startsWith('Bearer ') ? header.slice(7).trim() : null;
+  const cookieToken = (req.cookies as Record<string, string> | undefined)?.[SESSION_COOKIE];
+  const token = cookieToken || bearer;
   if (!token) {
-    return next(AppError.unauthorized('Missing bearer token'));
+    return next(AppError.unauthorized('Missing session'));
   }
   const user = verifyToken(token);
   if (!user) {

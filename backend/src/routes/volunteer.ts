@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { redactPii } from '../utils/pii.js';
-import { buildContext, retrieve } from '../services/rag.service.js';
+import { buildContext, retrieveSmart } from '../services/rag.service.js';
 import { buildVolunteerSystemPrompt } from '../prompts/volunteer.js';
 import { generateAnswer } from '../services/bedrock.service.js';
 
@@ -24,7 +24,7 @@ volunteerRouter.post('/volunteer/script', async (req, res, next) => {
     const { question, language } = scriptSchema.parse(req.body);
     const safeQuestion = redactPii(question);
 
-    const docs = retrieve(safeQuestion);
+    const docs = await retrieveSmart(safeQuestion);
     const context = buildContext(docs);
     const systemPrompt = buildVolunteerSystemPrompt(language, context);
 

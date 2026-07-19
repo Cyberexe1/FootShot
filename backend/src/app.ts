@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
@@ -38,6 +39,7 @@ export function createApp(): Express {
   );
 
   app.use(express.json({ limit: '1mb' }));
+  app.use(cookieParser());
 
   // Structured request logging.
   app.use(pinoHttp({ logger }));

@@ -31,6 +31,12 @@ const envSchema = z.object({
   BEDROCK_MAX_TOKENS: z.coerce.number().int().positive().default(1024),
   BEDROCK_TEMPERATURE: z.coerce.number().min(0).max(1).default(0.3),
   BEDROCK_TIMEOUT_MS: z.coerce.number().int().positive().default(15_000),
+  // Use Titan embeddings for RAG retrieval (falls back to lexical on failure).
+  RAG_USE_EMBEDDINGS: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
+  BEDROCK_EMBED_MODEL_ID: z.string().default('amazon.titan-embed-text-v2:0'),
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace'])
     .default('info'),
@@ -77,6 +83,10 @@ export const config = {
     maxTokens: env.BEDROCK_MAX_TOKENS,
     temperature: env.BEDROCK_TEMPERATURE,
     timeoutMs: env.BEDROCK_TIMEOUT_MS,
+    embedModelId: env.BEDROCK_EMBED_MODEL_ID,
+  },
+  rag: {
+    useEmbeddings: env.RAG_USE_EMBEDDINGS,
   },
   logLevel: env.LOG_LEVEL,
 } as const;

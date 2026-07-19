@@ -9,6 +9,7 @@
 
 !/frontend/
 !/backend/
+!/.github/
 !/README.md
 !/.gitignore
 

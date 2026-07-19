@@ -7,9 +7,8 @@ import { AuthProvider } from '../lib/auth';
 import { api } from '../lib/api';
 
 vi.mock('../lib/api', () => ({
-  setAuthToken: vi.fn(),
   setUnauthorizedHandler: vi.fn(),
-  api: { login: vi.fn(), signup: vi.fn() },
+  api: { login: vi.fn(), signup: vi.fn(), logout: vi.fn().mockResolvedValue({ ok: true }) },
 }));
 
 function renderAuth(onSuccess = vi.fn(), onBack = vi.fn()) {

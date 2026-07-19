@@ -7,8 +7,10 @@ import { AuthProvider } from '../lib/auth';
 
 // Avoid real network calls in the component test.
 vi.mock('../lib/api', () => ({
-  api: { health: vi.fn().mockResolvedValue({ status: 'ok', service: 'test', timestamp: '' }) },
-  setAuthToken: vi.fn(),
+  api: {
+    health: vi.fn().mockResolvedValue({ status: 'ok', service: 'test', timestamp: '' }),
+    logout: vi.fn().mockResolvedValue({ ok: true }),
+  },
   setUnauthorizedHandler: vi.fn(),
 }));
 

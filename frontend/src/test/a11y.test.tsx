@@ -13,12 +13,12 @@ import { AuthProvider } from '../lib/auth';
 
 // Stub the API so components render their static UI without network calls.
 vi.mock('../lib/api', () => ({
-  setAuthToken: vi.fn(),
   setUnauthorizedHandler: vi.fn(),
   api: {
     chat: vi.fn(),
     login: vi.fn(),
     signup: vi.fn(),
+    logout: vi.fn().mockResolvedValue({ ok: true }),
     transport: vi.fn().mockResolvedValue({ updatedAt: '', options: [] }),
     sustainability: vi.fn().mockResolvedValue({ amenities: [] }),
     accessibilityServices: vi.fn().mockResolvedValue({ services: [] }),
