@@ -20,5 +20,22 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/test/setup.ts',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'text'],
+      // Enforced quality gate (set below current levels to allow small dips).
+      thresholds: {
+        lines: 60,
+        statements: 60,
+        functions: 45,
+        branches: 55,
+      },
+      exclude: [
+        '**/main.tsx',
+        '**/*.test.{ts,tsx}',
+        '**/test/**',
+        '**/vite-env.d.ts',
+      ],
+    },
   },
 });
