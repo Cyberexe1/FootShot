@@ -7,6 +7,12 @@ const LEVEL_META: Record<DensityLevel, { color: string; label: string; bg: strin
   crit: { color: '#EF4444', label: 'High', bg: 'bg-status-crit/15' },
 };
 
+/**
+ * Live crowd-density view. Polls `/api/crowd/zones` every 15s and renders a
+ * summary (people in venue, overall fill, zones at capacity) plus per-zone
+ * meters. Density level is conveyed by text label + percentage + a `meter`
+ * role, never colour alone, for colourblind accessibility.
+ */
 export default function CrowdView() {
   const crowd = useQuery({
     queryKey: ['crowd-zones'],

@@ -2,6 +2,13 @@ import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { api, type AmenityType, type AssistanceType } from '../../lib/api';
 
+/**
+ * Fan-facing services hub, composed of three self-contained sections:
+ *  - Transport: live-ish ETAs for metro/shuttle/rideshare/bus.
+ *  - Accessibility: service directory + an assistance-request form.
+ *  - Sustainability: locations of water refill, recycling, compost, EV charging.
+ * Each section fetches its own data so a slow/failed call never blocks the rest.
+ */
 const AMENITY_LABEL: Record<AmenityType, string> = {
   water: '💧 Water refill',
   recycling: '♻️ Recycling',

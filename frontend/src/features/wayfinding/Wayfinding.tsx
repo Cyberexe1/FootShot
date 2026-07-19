@@ -4,6 +4,12 @@ import { api } from '../../lib/api';
 import Card from '../../components/ui/Card';
 import VenueMap from './VenueMap';
 
+/**
+ * Wayfinding view. Loads the venue graph once, lets the fan pick an origin and
+ * destination (with a step-free/accessible toggle), and requests the shortest
+ * route from the API. The route is shown both as an ordered step list and
+ * highlighted on the schematic {@link VenueMap}.
+ */
 export default function Wayfinding() {
   const graph = useQuery({ queryKey: ['venue-graph'], queryFn: api.venueGraph });
   const [from, setFrom] = useState('gate-a');

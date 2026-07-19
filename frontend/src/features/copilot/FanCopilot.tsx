@@ -13,6 +13,12 @@ const SUGGESTIONS = [
   'Where can I refill my water bottle?',
 ];
 
+/**
+ * Fan Copilot chat view. Sends the user's question (plus recent history and the
+ * chosen language) to the RAG-grounded `/api/chat` endpoint and renders the
+ * conversation. The transcript is an `aria-live` region so screen readers
+ * announce assistant replies; answers show their venue sources.
+ */
 export default function FanCopilot() {
   const [language, setLanguage] = useState<string>('English');
   const [input, setInput] = useState('');
