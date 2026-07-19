@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { findRoute, getGraph } from '../services/wayfinding.service.js';
 
+// Challenge area: Navigation (gate-to-seat routing, incl. step-free/accessible).
 export const wayfindingRouter = Router();
 
 const routeSchema = z.object({

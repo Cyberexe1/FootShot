@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { getOverview } from '../services/analytics.service.js';
 
+// Challenge area: Operational intelligence (organizer analytics + sustainability).
 export const analyticsRouter = Router();
 
 // Organizer-only cross-venue analytics.

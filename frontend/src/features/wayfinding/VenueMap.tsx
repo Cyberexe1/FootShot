@@ -82,8 +82,8 @@ export default function VenueMap({ graph, route }: Props) {
             <text
               x={n.x + 7}
               y={n.y + 3}
-              fontSize="7"
-              fill="#CBD5E1"
+              fontSize="9"
+              fill="#E2E8F0"
             >
               {n.name}
             </text>

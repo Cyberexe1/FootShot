@@ -4,6 +4,7 @@ import { authenticate, requireRole } from '../middleware/auth.js';
 import { generateAnswer } from '../services/bedrock.service.js';
 import { buildTranslateSystemPrompt } from '../prompts/notify.js';
 
+// Challenge area: Multilingual assistance (auto-translated announcements, GenAI).
 export const notifyRouter = Router();
 
 notifyRouter.use('/notify', authenticate, requireRole('staff', 'organizer'));

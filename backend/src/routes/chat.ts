@@ -9,6 +9,7 @@ import {
   type ChatTurn,
 } from '../services/bedrock.service.js';
 
+// Challenge areas: Multilingual assistance · Navigation · Accessibility (GenAI).
 export const chatRouter = Router();
 
 const turnSchema = z.object({

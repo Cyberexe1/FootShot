@@ -6,6 +6,7 @@ import { buildContext, retrieveSmart } from '../services/rag.service.js';
 import { buildVolunteerSystemPrompt } from '../prompts/volunteer.js';
 import { generateAnswer } from '../services/bedrock.service.js';
 
+// Challenge area: Volunteer enablement (AI-drafted response scripts, GenAI+RAG).
 export const volunteerRouter = Router();
 
 volunteerRouter.use('/volunteer', authenticate, requireRole('staff', 'organizer'));

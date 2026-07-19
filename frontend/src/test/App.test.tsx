@@ -42,5 +42,8 @@ describe('App', () => {
     await user.click(screen.getAllByRole('button', { name: /enter the console/i })[0]);
     expect(screen.getByRole('navigation', { name: /primary/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /fan copilot/i })).toBeInTheDocument();
+    // Accessibility: a skip-to-content link and a focusable main landmark exist.
+    expect(screen.getByRole('link', { name: /skip to main content/i })).toBeInTheDocument();
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'main-content');
   });
 });

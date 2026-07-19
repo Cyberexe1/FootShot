@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getZones, ingestOccupancy } from '../services/crowd.service.js';
 import { authenticate, requireRole } from '../middleware/auth.js';
 
+// Challenge area: Crowd management (live zone density + occupancy ingest).
 export const crowdRouter = Router();
 
 /** GET /api/crowd/zones — current zone densities for the heatmap. */

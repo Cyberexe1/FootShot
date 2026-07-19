@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticate, requireRole } from '../middleware/auth.js';
 import { forecastCongestion } from '../services/predict.service.js';
 
+// Challenge areas: Crowd management · Real-time decision support (forecasting).
 export const predictRouter = Router();
 
 predictRouter.use('/predict', authenticate, requireRole('staff', 'organizer'));

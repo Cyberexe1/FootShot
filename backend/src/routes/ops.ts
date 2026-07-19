@@ -5,6 +5,7 @@ import { incidentsRepo } from '../repositories/incidents.repo.js';
 import { generateAnswer } from '../services/bedrock.service.js';
 import { OPS_SYSTEM_PROMPT, buildOpsUserMessage } from '../prompts/ops.js';
 
+// Challenge areas: Operational intelligence · Real-time decision support (GenAI).
 export const opsRouter = Router();
 
 opsRouter.use('/ops', authenticate, requireRole('staff', 'organizer'));

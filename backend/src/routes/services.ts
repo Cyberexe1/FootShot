@@ -8,6 +8,7 @@ import {
   type AssistanceType,
 } from '../services/accessibility.service.js';
 
+// Challenge areas: Transportation · Accessibility · Sustainability.
 export const servicesRouter = Router();
 
 /* ---- Transport ---------------------------------------------------------- */

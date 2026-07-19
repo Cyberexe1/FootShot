@@ -29,6 +29,30 @@ in the brief is implemented and deployed:
 
 ---
 
+## Who it serves
+
+The challenge calls out four user groups; FanFlow 26 supports each:
+
+- **Fans** — Copilot, wayfinding, crowd view, transport, sustainability, accessibility services.
+- **Volunteers** — the volunteer AI script assistant drafts ready-to-read answers.
+- **Venue staff** — operator dashboard: live crowd, incidents, AI decision support.
+- **Organizers** — cross-venue analytics and sustainability reporting.
+
+## How Generative AI is used
+
+GenAI (Amazon Nova via Bedrock) is core to the product, not bolted on:
+
+- **Grounded Q&A (RAG)** — the Fan Copilot answers from a venue knowledge base
+  (Titan embeddings + retrieval), so responses stay factual and cite sources.
+- **Multilingual** — Nova answers in the fan's language and translates operator
+  announcements into 10+ languages.
+- **Decision support** — Nova turns live crowd density + open incidents into a
+  concise situation summary with prioritized recommended actions.
+- **Volunteer enablement** — Nova drafts short, friendly response scripts.
+
+Safety: user text is PII-redacted before any model call, prompts are guardrailed
+to refuse ungrounded answers, and model calls have timeouts + token caps.
+
 ## Features
 
 - **Fan Copilot** — multilingual, RAG-grounded assistant (Amazon Nova). PII is

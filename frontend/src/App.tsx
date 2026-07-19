@@ -68,6 +68,15 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen bg-bg text-content">
+      {/* Skip link — first focusable element, lets keyboard/screen-reader users
+          jump straight to the main content past the sidebar. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-40 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-white"
+      >
+        Skip to main content
+      </a>
+
       {/* Mobile overlay */}
       {navOpen && (
         <div
@@ -219,7 +228,11 @@ export default function App() {
         </header>
 
         {/* Content */}
-        <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 sm:px-6">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="mx-auto w-full max-w-4xl flex-1 px-4 py-6 outline-none sm:px-6"
+        >
           {tab === 'copilot' && <FanCopilot />}
           {tab === 'wayfinding' && <Wayfinding />}
           {tab === 'crowd' && <CrowdView />}

@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { api, type ChatSource, type ChatTurn } from '../../lib/api';
-import { LANGUAGES } from './languages';
+import { LANGUAGES, languageCode } from './languages';
 
 interface Message extends ChatTurn {
   sources?: ChatSource[];
+  /** BCP-47 code so screen readers pronounce non-English replies correctly. */
+  lang?: string;
 }
 
 const SUGGESTIONS = [
@@ -35,7 +37,12 @@ export default function FanCopilot() {
     onSuccess: (res) => {
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: res.answer, sources: res.sources },
+        {
+          role: 'assistant',
+          content: res.answer,
+          sources: res.sources,
+          lang: languageCode(res.language),
+        },
       ]);
       queueMicrotask(() =>
         listEndRef.current?.scrollIntoView?.({ behavior: 'smooth' }),
@@ -131,7 +138,12 @@ export default function FanCopilot() {
                 <span className="sr-only">
                   {isUser ? 'You said: ' : 'Assistant replied: '}
                 </span>
-                <p className="whitespace-pre-wrap leading-relaxed">{m.content}</p>
+                <p
+                  className="whitespace-pre-wrap leading-relaxed"
+                  lang={m.role === 'assistant' ? m.lang : undefined}
+                >
+                  {m.content}
+                </p>
                 {m.sources && m.sources.length > 0 && (
                   <p className="text-content-muted mt-2 border-t border-white/10 pt-2 text-xs">
                     Sources: {m.sources.map((s) => s.title).join(', ')}
